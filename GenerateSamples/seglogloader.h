@@ -14,7 +14,7 @@ public:
 
     unsigned char colorTable[MAXLABNUM][3];
 
-    std::map<int, int> prid_label_map;
+    std::map<int, int> map_prid_label;
 
     ONESEED		*seeds;
     int			seednum ;

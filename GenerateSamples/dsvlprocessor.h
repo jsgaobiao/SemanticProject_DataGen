@@ -27,6 +27,7 @@ public:
     void ProcessOneFrame ();
     bool ReadOneDsvlFrame ();
     void Processing();
+    void CheckStreamByPrid(cv::Mat& img, int prid);
     void InitRmap(RMAP *rm);
     void ReleaseRmap(RMAP *rm);
 

@@ -77,7 +77,8 @@ void SegLogLoader::loadSegLog(char *szFile)
             if (str) prids[pno].lab = atoi (str);
             streamcnt[prids[pno].lab]++;
             streamtotal++;
-            prid_label_map[prids[pno].prid] = prids[pno].lab;
+
+            map_prid_label[prids[pno].prid] = prids[pno].lab;
 
             if (++pno>=pridnum)
                 break;

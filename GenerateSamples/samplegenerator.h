@@ -10,11 +10,9 @@ public:
 
     bool FindMaxContourCenter(const cv::Mat& mask_mat, int& center_ix, int& center_iy, cv::Rect& bbox);
 
-    void ExtractPointsInBbox(const cv::Rect bbox, std::vector<LABELLEDPONTS>& points,
-                             double& center_x, double& center_y, double& center_z);
+    void ExtractPointsByCenter(std::vector<LABELLEDPONTS> &points, double center_x, double center_y, double center_z);
 
-    void ExtractSampleByCenter(int center_x, int center_y,
-                               std::vector<LABELLEDPONTS>& labelpoints, cv::Mat& outsample);
+    void ExtractSampleByCenter(cv::Point2i centerInImage, cv::Mat &outsample);
 
     bool IsInBbox(LABELLEDPONTS pt, cv::Point3f minBoxPt, cv::Point3f maxBoxPt);
 

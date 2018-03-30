@@ -1,5 +1,6 @@
 #include "dsvlprocessor.h"
 #include "samplegenerator.h"
+#include <unordered_set>
 DsvlProcessor::DsvlProcessor(string filename)
 {
     dsvlbytesiz = sizeof (ONEDSVDATA);
@@ -47,6 +48,8 @@ void DsvlProcessor::ProcessOneFrame()
                 x=i*LINES_PER_BLK+j;
                 y=k;
                 rm.pts[y*rm.wid+x] = onefrm->dsv[i].points[j*PNTS_PER_LINE+k];
+//                std::cout<<rm.pts[y*rm.wid+x].z<<' '<<rm.pts[y*rm.wid+x].y<<' '<<rm.pts[y*rm.wid+x].z<<std::endl;
+
                 rm.rMap->imageData[y*rm.wid+x] = min(255,int(rng*10));
                 rm.regionID[y*rm.wid+x] = onefrm->dsv[i].lab[j*PNTS_PER_LINE+k];
                 rm.regnum = max (rm.regnum, rm.regionID[y*rm.wid+x]);
@@ -141,28 +144,58 @@ void DsvlProcessor::Processing()
         cvResize (rm.rMap, out);
         cvShowImage("range image",out);
 
-        SampleGenerator sampler(&rm);
-        cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
+
+
+        cv::Mat visual = cvarrToMat(col, true);
+        for (int i=0; i<seglog->seednum; i++){
+            if (seglog->seeds[i].milli == rm.millsec){
+                int x = seglog->seeds[i].ip.x / 2;
+                int y = seglog->seeds[i].ip.y * 4.5;
+                cv::circle(visual, cv::Point(x,y), 2, cv::Scalar(0,0,0), 2);
+            }
+        }
+
+        cv::Mat rangeimg = cvarrToMat(rm.rMap, true);
+        cv::Mat checkimg;
+        cv::cvtColor(rangeimg, checkimg, CV_GRAY2BGR);
+        CheckStreamByPrid(checkimg, 10208);
+        cv::resize(checkimg, checkimg, cv::Size(rm.wid/2, rm.len*4.5));
+        cv::imshow("check", checkimg);
+        cv::imshow("visual", visual);
 
         char WaitKey;
-        WaitKey = cvWaitKey(5);
+        WaitKey = cvWaitKey();
         if (WaitKey == 27) {
             isRunning = 0;
             break;
         }
-        //else if (WaitKey == 't')
-
+        else if (WaitKey == 't')
         {
             SampleGenerator sampler(&rm);
             cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
             sampler.GenerateAllSamplesInRangeImage(&rm, seglog);
             std::cout<<"Generate Samples: "<<rm.millsec<<std::endl;
         }
+
     }
     ReleaseRmap (&rm);
     cvReleaseImage(&out);
     cvReleaseImage(&col);
     delete []onefrm;
+}
+
+void DsvlProcessor::CheckStreamByPrid(Mat &img, int prid)
+{
+    for (int y = 0; y < rm.len; y++) {
+        for (int x = 0; x < rm.wid; x++) {
+            if (rm.regionID[y*rm.wid+x] == prid){
+                std::cout<<rm.millsec<<std::endl;
+                int px = x;
+                int py = y;
+                img.at<cv::Vec3b>(py,px) = cv::Vec3b(0,0,255);
+            }
+        }
+    }
 }
 
 void DsvlProcessor::InitRmap(RMAP *rm)
