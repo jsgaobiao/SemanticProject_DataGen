@@ -2,4 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     VisualDSVL \
-    GenerateSamples
+    GenerateSamples \
+    GenerateInput \
+    VisualResult

@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "types.h"
-#include "seglogloader.h"
 
 using namespace std;
 using namespace cv;
@@ -27,23 +26,13 @@ public:
     void ProcessOneFrame ();
     bool ReadOneDsvlFrame ();
     void Processing();
-    void CheckStreamByPrid(cv::Mat& img, int prid);
     void InitRmap(RMAP *rm);
     void ReleaseRmap(RMAP *rm);
-
-public:
-
-    static void MouseCallback(int event, int x, int y, int, void* userdata);
-
-    void setSeglog(SegLogLoader *value);
-
 private:
-    int dsvlbytesiz;
-    int dsvbytesiz;
+    int dsbytesiz;
     int labbytesiz;
     int dFrmNum;
     ONEDSVFRAME	*onefrm;
-    SegLogLoader *seglog;
     std::ifstream dfp;
     RMAP rm;
     bool isRunning;

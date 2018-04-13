@@ -12,9 +12,9 @@ using namespace std;
 
 int main()
 {
-    std::string dsvlfilename = "/home/pku-m/SemanticMap/Data/FineAnnotation/2-1/2-1.dsvl";
-    std::string seglogfilename = "/home/pku-m/SemanticMap/Data/FineAnnotation/2-1/2-1-merged-new.log";
-    std::string colortablefilename = "/home/pku-m/SemanticMap/Data/FineAnnotation/2-1/colortable.txt";
+    std::string dsvlfilename = "/home/gaobiao/Documents/2-1/2-1.dsvl";
+    std::string seglogfilename = "/home/gaobiao/Documents/2-1/2-1-merged-new.log";
+    std::string colortablefilename = "/home/gaobiao/Documents/2-1/colortable.txt";
 
     SegLogLoader segloader;
     segloader.loadSegLog(const_cast<char*>(seglogfilename.c_str()));

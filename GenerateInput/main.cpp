@@ -1,18 +1,11 @@
 #include <iostream>
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <QString>
-#include <QStringList>
+#include <QDir>
 #include "dsvlprocessor.h"
-
 using namespace std;
 
 int main()
 {
     std::string dsvlfilename = "/home/gaobiao/Documents/2-1/2-1.dsvl";
-
     DsvlProcessor dsvl(dsvlfilename);
     dsvl.Processing();
 

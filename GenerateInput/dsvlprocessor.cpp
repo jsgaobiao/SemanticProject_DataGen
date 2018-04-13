@@ -2,18 +2,18 @@
 #include "samplegenerator.h"
 DsvlProcessor::DsvlProcessor(string filename)
 {
-    dsvlbytesiz = sizeof (ONEDSVDATA);
-    dsvbytesiz = dsvlbytesiz-sizeof(int)*LINES_PER_BLK*PNTS_PER_LINE;
-    dFrmNum=0;
+   dsbytesiz = sizeof (point3d)*2 + sizeof (ONEVDNDATA);
+   labbytesiz = sizeof(int)*LINES_PER_BLK*PNTS_PER_LINE;
+   dFrmNum=0;
 
-    dfp.open(filename.c_str(), std::ios_base::binary);
-    if (!dfp.is_open()){
-        printf("File open failure : %s\n", filename.c_str());
-        isRunning = 0;
-    }
-    else{
-        isRunning = 1;
-    }
+   dfp.open(filename.c_str(), std::ios_base::binary);
+   if (!dfp.is_open()){
+    printf("File open failure : %s\n", filename.c_str());
+    isRunning = 0;
+   }
+   else{
+       isRunning = 1;
+   }
 }
 
 void DsvlProcessor::ProcessOneFrame()
@@ -30,7 +30,7 @@ void DsvlProcessor::ProcessOneFrame()
     memset (rm.pts, 0, sizeof (point3fi)*rm.wid*rm.len);	//����ͼ����Ӧ�ļ���������
     memset (rm.regionID, 0, sizeof (int)*rm.wid*rm.len);	//����ͼ����Ӧ�ķָ���ǩ����
     rm.regnum = 0;
-    //�ָ���ǩ��Ŀ
+                                        //�ָ���ǩ��Ŀ
     rm.ang = onefrm->ang;
     rm.shv = onefrm->shv;
 
@@ -96,11 +96,32 @@ void DsvlProcessor::ProcessOneFrame()
 bool DsvlProcessor::ReadOneDsvlFrame()
 {
     int		i;
+    onefrm->ang.x = onefrm->ang.y = onefrm->ang.z = 0;
+    onefrm->shv.x = onefrm->shv.y = onefrm->shv.z = 0;
+
     for (i=0; i<BKNUM_PER_FRM; i++) {
-        dfp.read((char *)&onefrm->dsv[i], dsvlbytesiz);
-        if (dfp.gcount() != dsvlbytesiz)
+        dfp.read((char *)&onefrm->dsv[i], dsbytesiz);
+        if (dfp.gcount() != dsbytesiz)
             break;
+        dfp.read((char *)onefrm->dsv[i].lab, labbytesiz);
+        if (dfp.gcount() != labbytesiz)
+            break;
+
+        onefrm->ang.x += onefrm->dsv[i].ang.x;
+        onefrm->ang.y += onefrm->dsv[i].ang.y;
+        onefrm->ang.z += onefrm->dsv[i].ang.z;
+        onefrm->shv.x += onefrm->dsv[i].shv.x;
+        onefrm->shv.y += onefrm->dsv[i].shv.y;
+        onefrm->shv.z += onefrm->dsv[i].shv.z;
     }
+
+    //ÿһ֡��һ��ƽ����λ�ˣ��������ݹ���
+    onefrm->ang.x /= BKNUM_PER_FRM;
+    onefrm->ang.y /= BKNUM_PER_FRM;
+    onefrm->ang.z /= BKNUM_PER_FRM;
+    onefrm->shv.x /= BKNUM_PER_FRM;
+    onefrm->shv.y /= BKNUM_PER_FRM;
+    onefrm->shv.z /= BKNUM_PER_FRM;
 
     if (i<BKNUM_PER_FRM)
         return 0;
@@ -111,7 +132,7 @@ bool DsvlProcessor::ReadOneDsvlFrame()
 void DsvlProcessor::Processing()
 {
     dfp.seekg(0, std::ios_base::end);
-    dFrmNum = dfp.tellg() / 180 / dsvlbytesiz;
+    dFrmNum = dfp.tellg() / 180 / dsbytesiz;
 
     dfp.seekg(0, std::ios_base::beg);
 
@@ -127,8 +148,10 @@ void DsvlProcessor::Processing()
     {
         if (num%100==0)
             printf("%d (%d)\n",num,dFrmNum);
-
         num++;
+
+        if (num<950)
+            continue;
 
         ProcessOneFrame ();
 
@@ -142,12 +165,16 @@ void DsvlProcessor::Processing()
         cvShowImage("range image",out);
 
         char WaitKey;
-        WaitKey = cvWaitKey();
+        WaitKey = cvWaitKey(1);
         if (WaitKey == 27) {
             isRunning = 0;
             break;
         }
-        else if(WaitKey == 'q'){
+//        else if(WaitKey == 'q'){
+//            SampleGenerator sampler(&rm);
+//            sampler.GeneratorSamples(&rm);
+//        }
+        if (num%2==0){
             SampleGenerator sampler(&rm);
             sampler.GeneratorSamples(&rm);
         }
@@ -174,10 +201,4 @@ void DsvlProcessor::ReleaseRmap(RMAP *rm)
     delete []rm->regionID;
     cvReleaseImage(&rm->rMap);
     cvReleaseImage(&rm->lMap);
-}
-
-void DsvlProcessor::MouseCallback(int event, int x, int y, int, void *userdata)
-{
-    SampleGenerator* psg = reinterpret_cast<SampleGenerator*>(userdata);
-    psg->OnMouse(event, x, y);
 }

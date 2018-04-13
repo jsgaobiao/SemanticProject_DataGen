@@ -6,15 +6,11 @@ CONFIG += qt QtCore
 INCLUDEPATH += /usr/local/include
 LIBS += -L/usr/local/lib/ -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc -lopencv_videoio -lopencv_viz
 
+SOURCES += main.cpp \
+    dsvlprocessor.cpp \
+    samplegenerator.cpp
+
 HEADERS += \
     dsvlprocessor.h \
-    samplegenerator.h \
     types.h \
-    seglogloader.h
-
-SOURCES += \
-    dsvlprocessor.cpp \
-    main.cpp \
-    samplegenerator.cpp \
-    seglogloader.cpp
-
+    samplegenerator.h

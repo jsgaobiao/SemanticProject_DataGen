@@ -1,4 +1,6 @@
 #include "samplegenerator.h"
+#include <unordered_set>
+#include <algorithm>
 #include <QDir>
 SampleGenerator::SampleGenerator(RMAP *prm_)
 {
@@ -192,7 +194,7 @@ void SampleGenerator::ExtractPointsInBbox(const cv::Rect bbox, std::vector<LABEL
 void SampleGenerator::ExtractSampleByCenter(int center_x, int center_y, std::vector<LABELLEDPONTS> &labelpoints, cv::Mat &outsample)
 {
     cv::circle(dataimg, cv::Point(center_x, center_y), 2, cv::Scalar(255, 0, 0), 2);
-    int width = 300;
+    int width = 256;
     int height = 256;
 
     cv::Mat range_mat = cv::Mat::zeros(height, width, CV_8UC1);
@@ -266,39 +268,28 @@ void SampleGenerator::setRangeMapPointer(RMAP *value)
     prm = value;
 }
 
-void SampleGenerator::OnMouse(int event, int x, int y)
-{
-    if (event == CV_EVENT_LBUTTONDOWN)
-    {
-        cv::Point p = cv::Point(x,y);
-        p.x = x * 2;
-        p.y = y / 4.5;
-
-        if (!prm)
-            return;
-
-        int regionid = prm->regionID[p.y*prm->wid + p.x];
-        if (regionid == GROUND)
-            return;
-
-        IDTYPE rid(regionid, 0);
-
-        cv::Mat sample_mat;
-        ExtractSampleById(rid, sample_mat);
-
-        printf("time: %d ID: %d point_num: %d\n", prm->millsec, regionid, rid.point_num);
-       // cv::imshow("sample", sample_mat);
-    }
-}
-
-std::vector<cv::Mat> &SampleGenerator::GeneratorSamples(RMAP *prm_)
+void SampleGenerator::GeneratorSamples(RMAP *prm_)
 {
     prm = prm_;
     int count = 0;
     std::vector<cv::Mat> samples;
 
+    //determine all region id, prm->regnum is not enough
+    std::unordered_set<int> idx_set;
+    for (int y = 0; y < prm->len; y++) {
+        for (int x = 0; x < prm->wid; x++) {
+            if (!prm->pts[y*prm->wid + x].i)
+                continue;
+            if (prm->regionID[y*prm->wid+x] > 0){
+                idx_set.insert(prm->regionID[y*prm->wid+x]);
+            }
+        }
+    }
+
     bool onesample = 0;
-    for(int regionid=0; regionid<prm->regnum; regionid++){
+    std::unordered_set<int>::iterator iter;
+    for (iter=idx_set.begin(); iter!=idx_set.end(); iter++){
+        int regionid = *iter;
         count = 0;
         onesample = 0;
         for (int y = 0; y < prm->len; y++) {
@@ -310,16 +301,16 @@ std::vector<cv::Mat> &SampleGenerator::GeneratorSamples(RMAP *prm_)
                 if (prm->regionID[y*prm->wid+x] == regionid){
                     count += 1;
                 }
-                if (count > 30){
+                if (count > 20){
                     IDTYPE rid(regionid, 0);
                     cv::Mat outsample;
                     ExtractSampleById(rid, outsample);
                     if (outsample.data){
-                        std::string imgname = "/home/pku-m/SemanticMap/OnlineTest/online/campus1_test/";
+                        std::string imgname = "/home/pku-m/SemanticMap/Tools/SemanticProject/GenerateInput/campus1_test/";
                         QDir dir(QString(imgname.c_str()));
                         if (!dir.exists()){
                             if (!dir.mkpath(dir.absolutePath()))
-                                return samples;
+                                return ;
                         }
                         QString foldername =QString("%1%2").arg(imgname.c_str()).arg(prm->millsec);
 
@@ -337,5 +328,5 @@ std::vector<cv::Mat> &SampleGenerator::GeneratorSamples(RMAP *prm_)
         }
     }
 
-    return samples;
+    return ;
 }

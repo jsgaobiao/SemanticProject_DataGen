@@ -58,6 +58,7 @@ typedef struct {
     point3d			shv;
     int			millisec;
     point3fi		points[PTNUM_PER_BLK];
+    MATRIX			rot;
     int				lab[PTNUM_PER_BLK];
 } ONEDSVDATA;
 
@@ -81,7 +82,6 @@ typedef struct {
     point3d			shv;
     int			millsec;
 } RMAP;
-
 
 #define	INVAFLG			0
 #define	LINEFLG			10
@@ -108,31 +108,6 @@ typedef struct {
 #define	BACKGROUND		-99
 #define EDGEPT			-9
 #define	CHECKEDLABEL	-7
-
-typedef struct {
-    int				sno;
-    int				milli;
-    int				fno;
-    int				rno;
-    point3d			cp;
-    point2i			ip;
-    int				pnum;
-    double			mind;
-    int				prid;
-    int				lab;
-} ONESEED;
-
-typedef struct {
-    int				prid;
-    int				sid;
-    int				eid;
-    int				sfn;
-    int				efn;
-    int				lab;
-    int				snum;
-} ONEPRID;
-
-#define	MAXLABNUM	30
 
 //////////////////////////////////////////////////////
 ///samplegenerator
@@ -183,18 +158,4 @@ static const unsigned char	LEGENDCOLORS[COLORNUM][3] =
                 {255,64,64},{0,128,128},{128,128,0},
 
             };
-
-
-///////////////visual////////////////////////
-
-#define classes_num 6
-
-struct CLASSIFYINFO
-{
-    std::string name;
-    int regionid;
-    int label;
-    int truth;
-    float scores[classes_num];
-};
 #endif // TYPES_H

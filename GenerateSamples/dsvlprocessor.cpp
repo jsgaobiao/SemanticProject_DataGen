@@ -154,22 +154,23 @@ void DsvlProcessor::Processing()
                 cv::circle(visual, cv::Point(x,y), 2, cv::Scalar(0,0,0), 2);
             }
         }
+/*code for check data*/
+//        cv::Mat rangeimg = cvarrToMat(rm.rMap, true);
+//        cv::Mat checkimg;
+//        cv::cvtColor(rangeimg, checkimg, CV_GRAY2BGR);
+//        CheckStreamByPrid(checkimg, 10208);
+//        cv::resize(checkimg, checkimg, cv::Size(rm.wid/2, rm.len*4.5));
+//        cv::imshow("check", checkimg);
 
-        cv::Mat rangeimg = cvarrToMat(rm.rMap, true);
-        cv::Mat checkimg;
-        cv::cvtColor(rangeimg, checkimg, CV_GRAY2BGR);
-        CheckStreamByPrid(checkimg, 10208);
-        cv::resize(checkimg, checkimg, cv::Size(rm.wid/2, rm.len*4.5));
-        cv::imshow("check", checkimg);
         cv::imshow("visual", visual);
 
         char WaitKey;
-        WaitKey = cvWaitKey();
+        WaitKey = cvWaitKey(1);
         if (WaitKey == 27) {
             isRunning = 0;
             break;
         }
-        else if (WaitKey == 't')
+        //else if (WaitKey == 't')
         {
             SampleGenerator sampler(&rm);
             cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
