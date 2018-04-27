@@ -16,7 +16,7 @@ public:
 
     void OnMouse(int event, int x, int y);
 
-    void GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *seglog);
+    void GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *seglog, cv::VideoWriter &out);
 
     void ExtractSampleByCenter(int center_x, int center_y, std::vector<LABELLEDPONTS> &labelpoints, cv::Mat &outsample);
     void ExtractPointsInBbox(const cv::Rect bbox, std::vector<LABELLEDPONTS> &points, double &center_x, double &center_y, double &center_z);

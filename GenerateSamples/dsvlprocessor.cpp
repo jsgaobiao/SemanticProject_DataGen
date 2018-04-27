@@ -86,6 +86,9 @@ void DsvlProcessor::ProcessOneFrame()
                     rm.lMap->imageData[(y*rm.wid+x)*3+0]	= val;
                 }
                 else {
+                    if (rm.regionID[y*rm.wid+x] < 0) {
+                        rm.regionID[y*rm.wid+x] *= -1;
+                    }
                     val = (rm.regionID[y*rm.wid+x])%COLORNUM;
                     rm.lMap->imageData[(y*rm.wid+x)*3+2]	= LEGENDCOLORS[val][2];
                     rm.lMap->imageData[(y*rm.wid+x)*3+1]	= LEGENDCOLORS[val][1];
@@ -126,6 +129,10 @@ void DsvlProcessor::Processing()
 
     int	num = 0;
 
+    std::string videoName = "/home/gaobiao/Documents/2-1/ladybug.avi";
+    cv::VideoWriter vout;
+    vout.open(videoName, CV_FOURCC('D','I','V','X'), 15, cv::Size(1080,144), true);
+
     while (ReadOneDsvlFrame () && isRunning)
     {
         if (num%100==0)
@@ -138,11 +145,11 @@ void DsvlProcessor::Processing()
         cvResize(rm.lMap, col);
 
         //InteractiveSelect(col, &rm);
-        cvShowImage("segmentation",col);
+        //cvShowImage("segmentation",col);
 
         //���ӻ�
         cvResize (rm.rMap, out);
-        cvShowImage("range image",out);
+        //cvShowImage("range image",out);
 
 
 
@@ -162,7 +169,7 @@ void DsvlProcessor::Processing()
 //        cv::resize(checkimg, checkimg, cv::Size(rm.wid/2, rm.len*4.5));
 //        cv::imshow("check", checkimg);
 
-        cv::imshow("visual", visual);
+        //cv::imshow("visual", visual);
 
         char WaitKey;
         WaitKey = cvWaitKey(1);
@@ -174,11 +181,12 @@ void DsvlProcessor::Processing()
         {
             SampleGenerator sampler(&rm);
             cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
-            sampler.GenerateAllSamplesInRangeImage(&rm, seglog);
+            sampler.GenerateAllSamplesInRangeImage(&rm, seglog, vout);
             std::cout<<"Generate Samples: "<<rm.millsec<<std::endl;
         }
 
     }
+    vout.release();
     ReleaseRmap (&rm);
     cvReleaseImage(&out);
     cvReleaseImage(&col);

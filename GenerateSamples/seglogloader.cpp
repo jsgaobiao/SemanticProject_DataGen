@@ -125,7 +125,7 @@ void SegLogLoader::loadSegLog(char *szFile)
 
 void SegLogLoader::loadColorTabel(char *filename)
 {
-    memset (colorTable, 0, MAXLABNUM*3);
+    memset (colorTable, 0, MAXLABNUM*4);
 
     char	i_line[80];
     FILE	*fp;
@@ -141,6 +141,7 @@ void SegLogLoader::loadColorTabel(char *filename)
         colorTable[n][0] = atoi (strtok (i_line, ",\t\n"));
         colorTable[n][1] = atoi (strtok (NULL, ",\t\n"));
         colorTable[n][2] = atoi (strtok (NULL, ",\t\n"));
+        colorTable[n][3] = atoi (strtok (NULL, ",\t\n"));
         n++;
         if (n>=MAXLABNUM)
             break;

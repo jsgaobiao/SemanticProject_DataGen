@@ -173,7 +173,7 @@ typedef struct IDTYPE {
 /// others
 /////////////////////////////////////////////////
 
-#define	COLORNUM		16
+#define	COLORNUM		20
 static const unsigned char	LEGENDCOLORS[COLORNUM][3] =
             {
                 {128,255,255},{0,0,255},{255,0,0},{0,255,0},
@@ -181,7 +181,7 @@ static const unsigned char	LEGENDCOLORS[COLORNUM][3] =
                 {128,0,128},{255,128,0},{255,128,255},
                 {164,255,255},
                 {255,64,64},{0,128,128},{128,128,0},
-
+                {128,64,0},{0,64,128},{64,0,128}
             };
 
 

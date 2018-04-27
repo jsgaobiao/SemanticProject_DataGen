@@ -12,7 +12,7 @@ public:
     void loadSegLog(char *szFile);
     void loadColorTabel(char *filename);
 
-    unsigned char colorTable[MAXLABNUM][3];
+    unsigned char colorTable[MAXLABNUM][4];
 
     std::map<int, int> map_prid_label;
 
