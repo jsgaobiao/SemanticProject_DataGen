@@ -113,6 +113,10 @@ typedef struct {
     int				sno;
     int				milli;
     int				fno;
+#define NONVALID		-9999
+#define GROUND			-999
+#define	BACKGROUND		-99
+#define EDGEPT			-9
     int				rno;
     point3d			cp;
     point2i			ip;

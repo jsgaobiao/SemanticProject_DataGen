@@ -290,24 +290,19 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
                 count++;
             }
         }
-//        for (int i=0; i<seglog->seednum; i++){
-//            label = seglog->seeds[i].lab;
-//            if ((seglog->seeds[i].prid==regionid) && (prm->millsec==seglog->seeds[i].milli)){
-//                regionIdMapLabel.insert(std::pair<int, int>(regionid, label));
-//                count++;
-//            }
-//        }
 
     }
 
     cv::Mat rangeImg, mergeImg;
     cv::resize(cv::cvarrToMat(prm->rMap), rangeImg, cv::Size(1080, 144), cv::INTER_NEAREST);
+    cv::cvtColor(rangeImg, rangeImg, CV_GRAY2BGR);
     mergeImg = rangeImg.clone();
-    cv::cvtColor(mergeImg, mergeImg, CV_GRAY2BGR);
 
     double yRatio = double(prm->len) / 144.0;
     double xRatio = double(prm->wid) / 1080.0;
     int maxid = 0;
+    int minz = 100000;
+    int maxz = -minz;
 
     // Build ground truth image
     for (int y = 0; y < 144; y++) {
@@ -315,6 +310,10 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
             int yy = y * yRatio;
             int xx = x * xRatio;
             int tmpRegId = prm->regionID[yy*prm->wid+xx];
+            int height = (prm->pts[yy*prm->wid+xx].z + 3.0) * 60;
+            rangeImg.at<cv::Vec3b>(y, x)[1] = prm->pts[yy*prm->wid+xx].i;
+            rangeImg.at<cv::Vec3b>(y, x)[2] = std::min(height, 255);
+
             if (tmpRegId > 0) {
                 if (tmpRegId > maxid)
                     maxid = tmpRegId;
@@ -331,7 +330,7 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
                     mergeImg.at<cv::Vec3b>(y, x)[1] = g;
                     mergeImg.at<cv::Vec3b>(y, x)[2] = r;
                 }
-                else if (tmpRegId <= 22){
+                else if (tmpRegId < 22){
                     int r = seglog->colorTable[tmpRegId%22][0];
                     int g = seglog->colorTable[tmpRegId%22][1];
                     int b = seglog->colorTable[tmpRegId%22][2];
@@ -346,15 +345,21 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
                 }
             }
             else if (tmpRegId == GROUND) {
-                outsample.at<uchar>(y, x) = 10;
+                outsample.at<uchar>(y, x) = 8;
                 mergeImg.at<cv::Vec3b>(y, x)[0] = 208;
                 mergeImg.at<cv::Vec3b>(y, x)[1] = 149;
                 mergeImg.at<cv::Vec3b>(y, x)[2] = 117;
             }
+            else if (tmpRegId <= 0 && prm->pts[yy*prm->wid+xx].i == 0) {
+                outsample.at<uchar>(y, x) = 0;
+//                rangeImg.at<cv::Vec3b>(y, x)[0] = 255;
+//                rangeImg.at<cv::Vec3b>(y, x)[1] = 255;
+//                rangeImg.at<cv::Vec3b>(y, x)[2] = 255;
+            }
         }
     }
     // Write to image file
-    std::string imgname = "/home/gaobiao/Documents/2-1/ladybug/";
+    std::string imgname = "/home/gaobiao/Documents/2-1/ladybug_bak/";
     QDir dir(QString(imgname.c_str()));
     if (!dir.exists()){
         if (!dir.mkpath(dir.absolutePath()))
@@ -363,10 +368,12 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
     imgname += std::to_string(prm->millsec);
     cv::imwrite(imgname + "_gt.png", outsample);
     cv::imwrite(imgname + "_img.png", rangeImg);
+    cv::imwrite(imgname + "_merge.png", mergeImg);
 
     // Write to video
     cv::putText(mergeImg, std::to_string(prm->millsec), cv::Point(20,10), CV_FONT_BLACK, 0.6, cv::Scalar(0, 0, 255), 2);
     cv::imshow("test", mergeImg);
+    cv::imshow("input", rangeImg);
     cv::waitKey(1);
     out << mergeImg;
     return ;

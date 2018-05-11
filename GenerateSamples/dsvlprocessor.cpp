@@ -55,12 +55,13 @@ void DsvlProcessor::ProcessOneFrame()
                 rm.regnum = max (rm.regnum, rm.regionID[y*rm.wid+x]);
 
                 unsigned int val;
-                if (rm.regionID[y*rm.wid+x]==EDGEPT) {
+
+                /*if (rm.regionID[y*rm.wid+x]==EDGEPT) {
                     rm.lMap->imageData[(y*rm.wid+x)*3+2]	= 128;
                     rm.lMap->imageData[(y*rm.wid+x)*3+1]	= 128;
                     rm.lMap->imageData[(y*rm.wid+x)*3+0]	= 128;
                 }
-                else if (rm.regionID[y*rm.wid+x]==GROUND)
+                else */if (rm.regionID[y*rm.wid+x]==GROUND)
                 {
                     rm.lMap->imageData[(y*rm.wid+x)*3+2]	= 0;
                     rm.lMap->imageData[(y*rm.wid+x)*3+1]	= 0;
