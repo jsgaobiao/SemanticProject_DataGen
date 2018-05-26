@@ -350,16 +350,16 @@ void SampleGenerator::GenerateAllSamplesInRangeImage(RMAP *prm_, SegLogLoader *s
         }
     }
     // Write to image file
-    std::string imgname = "/home/gaobiao/Documents/2-1/ladybug/";
-    QDir dir(QString(imgname.c_str()));
-    if (!dir.exists()){
-        if (!dir.mkpath(dir.absolutePath()))
-            return ;
-    }
-    imgname += std::to_string(prm->millsec);
-    cv::imwrite(imgname + "_gt.png", outsample);
-    cv::imwrite(imgname + "_img.png", rangeImg);
-    cv::imwrite(imgname + "_merge.png", mergeImg);
+//    std::string imgname = "/home/gaobiao/Documents/2-1/ladybug/";
+//    QDir dir(QString(imgname.c_str()));
+//    if (!dir.exists()){
+//        if (!dir.mkpath(dir.absolutePath()))
+//            return ;
+//    }
+//    imgname += std::to_string(prm->millsec);
+//    cv::imwrite(imgname + "_gt.png", outsample);
+//    cv::imwrite(imgname + "_img.png", rangeImg);
+//    cv::imwrite(imgname + "_merge.png", mergeImg);
 
     // Write to video
     cv::putText(mergeImg, std::to_string(prm->millsec), cv::Point(20,10), CV_FONT_BLACK, 0.6, cv::Scalar(0, 0, 255), 2);

@@ -115,7 +115,7 @@ bool DsvlProcessor::ReadOneDsvlFrame()
         return 1;
 }
 
-void DsvlProcessor::Processing()
+void DsvlProcessor::Processing(DsvlProcessor &dsvl_bg)
 {
     dfp.seekg(0, std::ios_base::end);
     dFrmNum = dfp.tellg() / 180 / dsvlbytesiz;
@@ -123,6 +123,7 @@ void DsvlProcessor::Processing()
     dfp.seekg(0, std::ios_base::beg);
 
     InitRmap (&rm);
+    dsvl_bg.InitRmap(&(dsvl_bg.rm));
     onefrm= new ONEDSVFRAME[1];
 
     IplImage * out = cvCreateImage (cvSize (rm.wid/2, rm.len*4.5),IPL_DEPTH_8U,1);
@@ -136,6 +137,7 @@ void DsvlProcessor::Processing()
 
     while (ReadOneDsvlFrame () && isRunning)
     {
+        dsvl_bg.ReadOneDsvlFrame();
         if (num%100==0)
             printf("%d (%d)\n",num,dFrmNum);
 
@@ -151,44 +153,15 @@ void DsvlProcessor::Processing()
         //���ӻ�
         cvResize (rm.rMap, out);
         cvShowImage("range image",out);
-        cv::waitKey(0);
+//        cv::waitKey(0);
 
 
-
-        cv::Mat visual = cvarrToMat(col, true);
-        for (int i=0; i<seglog->seednum; i++){
-            if (seglog->seeds[i].milli == rm.millsec){
-                int x = seglog->seeds[i].ip.x / 2;
-                int y = seglog->seeds[i].ip.y * 4.5;
-                cv::circle(visual, cv::Point(x,y), 2, cv::Scalar(0,0,0), 2);
-            }
-        }
-/*code for check data*/
-//        cv::Mat rangeimg = cvarrToMat(rm.rMap, true);
-//        cv::Mat checkimg;
-//        cv::cvtColor(rangeimg, checkimg, CV_GRAY2BGR);
-//        CheckStreamByPrid(checkimg, 10208);
-//        cv::resize(checkimg, checkimg, cv::Size(rm.wid/2, rm.len*4.5));
-//        cv::imshow("check", checkimg);
-
-        //cv::imshow("visual", visual);
-
-        char WaitKey;
-        WaitKey = cvWaitKey(1);
-        if (WaitKey == 27) {
-            isRunning = 0;
-            break;
-        }
-        //else if (WaitKey == 't')
-        {
-            SampleGenerator sampler(&rm);
-            cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
-            sampler.GenerateAllSamplesInRangeImage(&rm, seglog, vout);
-            std::cout<<"Generate Samples: "<<rm.millsec<<std::endl;
-        }
+        SampleGenerator sampler(&rm);
+        cv::setMouseCallback("segmentation", DsvlProcessor::MouseCallback, &sampler);
+        sampler.GenerateAllSamplesInRangeImage(&rm, seglog, vout);
+        std::cout<<"Generate Samples: "<<rm.millsec<<std::endl;
 
     }
-    vout.release();
     ReleaseRmap (&rm);
     cvReleaseImage(&out);
     cvReleaseImage(&col);

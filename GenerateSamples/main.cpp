@@ -12,7 +12,7 @@ using namespace std;
 
 int main()
 {
-    std::string dsvlfilename = "/home/gaobiao/Documents/2-1/2-2-bg.dsvl";
+    std::string dsvlfilename = "/home/gaobiao/Documents/2-1/2-2-mv.dsvl";
     std::string seglogfilename = "/home/gaobiao/Documents/2-1/2-2-bgalign.log";
     std::string colortablefilename = "/home/gaobiao/Documents/2-1/colortable.txt";
 

@@ -4,4 +4,5 @@ SUBDIRS += \
     VisualDSVL \
     GenerateSamples \
     GenerateInput \
-    VisualResult
+    VisualResult \
+    MergeDsvlSeg
